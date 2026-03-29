@@ -180,3 +180,38 @@ def simulate_login():
         f.write(log_entry + "\n")
     print(msg)
     print("")
+
+def main_menu():
+    ensure_files()
+    while True:
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("     SECURE EXAMINATION BOARD SUBMISSION SYSTEM         ")
+        print("                    Python version                      ")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("1. Submit an assignment")
+        print("2. Check if a file has already been submitted")
+        print("3. List all submitted assignments")
+        print("4. Simulate login attempt")
+        print("5. Exit system")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        choice = input("Please choose your task (1-5): ").strip()
+        if choice == "1":
+            submit_assignment()
+        elif choice == "2":
+            check_file_submitted()
+        elif choice == "3":
+            list_submitted()
+        elif choice == "4":
+            simulate_login()
+        elif choice == "5":
+            confirm = input("Confirm exit? (Y/N): ").strip()
+            if confirm.lower() == "y":
+                print("Exiting Menu. Logs are remembered.")
+                break
+        else:
+            print("Invalid option. Please choose 1-5.")
+
+if __name__ == "__main__":
+    print("Starting Secure Submission System (Python)...")
+    main_menu()
+
