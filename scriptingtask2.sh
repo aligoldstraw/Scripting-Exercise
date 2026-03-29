@@ -160,3 +160,45 @@ process_queue() {
         break
       fi
     done
+   # Write back any remaining unfinished jobs (should be none, as we run to completion)
+    printf "%s\n" "${jobs[@]}" > "$QUEUE_FILE"
+    echo "Round Robin scheduling complete. All jobs have been processed."
+  fi
+  echo ""
+}
+
+# Main menu
+main_menu() {
+  while true; do
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "     University HPC Job Scheduler (Bash on Kali Linux)   "
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "1. View pending jobs"
+    echo "2. Submit a job request"
+    echo "3. Process job queue (Round Robin or Priority)"
+    echo "4. View completed jobs"
+    echo "5. Exit system"
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    read -p "Enter your task number (1-5): " option
+    
+    case "$option" in
+      1) view_pending ;;
+      2) submit_job ;;
+      3) process_queue ;;
+      4) view_completed ;;
+      5)
+        read -p "Are you sure you would like to exit? (Y/N): " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+          echo "Exiting scheduler. All data persisted in .txt files."
+          echo "Log file: $LOG_FILE"
+          exit 0
+        fi
+        ;;
+      *) echo "Invalid option. Please choose 1-5." ;;
+    esac
+  done
+}
+ 
+# Start the scheduler
+echo "Starting HPC Job Scheduler..."
+main_menu
