@@ -212,3 +212,26 @@ case $choice in
             fi
             log_action "Viewed system monitor log"
             ;;
+
+	0)  # Bye exit with confirmation
+            echo -e "\nAre you sure you would like to exit? (Y/N)"
+            read -p "> " confirm_exit
+            if [[ "$confirm_exit" == "Y" || "$confirm_exit" == "y" ]]; then
+                log_action "System Monitor tool exited (Bye)"
+                echo -e "\nGoodbye! All actions have been logged in system."
+                echo "Log file: $LOG_FILE"
+                echo "Archive directory: $ARCHIVE_DIR"
+                exit 0
+            else
+                echo "Exit cancelled. Returning to main menu..."
+            fi
+            ;;
+            
+        *)  # Invalid choice
+            echo "Selection not available! Please choose options 0-6."
+            ;;
+    esac
+    
+    echo -e "\nPress Enter to return back to the main menu..."
+    read -r
+done
