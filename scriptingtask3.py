@@ -157,4 +157,26 @@ def simulate_login():
         print("")
         return
 
-
+    password = input("Enter password: ")
+    ts = get_unix_time()
+    last_ts = get_last_attempt_time(student_id)
+    repeated = last_ts is not None and (ts - last_ts) < 60
+    if password == CORRECT_PASS:
+        status = "SUCCESS"
+        msg = "Login successful."
+        note = ""
+    else:
+        status = "FAILED"
+        msg = "Login failed. Incorrect password."
+        note = "wrong password"
+    if repeated:
+        note = "SUSPICIOUS - repeated login attempt within 60 seconds"
+        print("Suspicious activity detected: repeated login attempt within 60 seconds.")
+    # Log
+    log_entry = f"{ts}|{student_id}|{status}"
+    if note:
+        log_entry += f"|{note}"
+    with open(LOGIN_LOG, 'a', encoding='utf-8') as f:
+        f.write(log_entry + "\n")
+    print(msg)
+    print("")
