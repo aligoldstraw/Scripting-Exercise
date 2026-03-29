@@ -40,3 +40,26 @@ def is_account_locked(student_id):
             attempts.append((ts, status))
     if not attempts:
         return False
+
+ # Sort by time (oldest first) and check consecutive fails from the end
+    attempts.sort(key=lambda x: x[0])
+    consecutive = 0
+    for ts, status in reversed(attempts):
+        if status == "SUCCESS":
+            break
+        consecutive += 1
+        if consecutive >= 3:
+            return True
+    return False
+
+def get_last_attempt_time(student_id):
+    attempts = []
+    for line in read_log(LOGIN_LOG):
+        parts = line.strip().split('|')
+        if len(parts) >= 3 and parts[1] == student_id:
+            try:
+                attempts.append(int(parts[0]))
+            except ValueError:
+                pass
+    return max(attempts) if attempts else None
+
