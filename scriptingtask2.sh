@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 # HPC Job Scheduler Script for University High Performance Computing Laboratory
 # Developed with Bash
