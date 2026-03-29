@@ -63,3 +63,28 @@ def get_last_attempt_time(student_id):
                 pass
     return max(attempts) if attempts else None
 
+def submit_assignment():
+    print("~~~~~ SUBMIT ASSIGNMENT ~~~~~")
+    student_id = input("Enter Student ID: ").strip().replace('|', '')
+    if not student_id:
+        print("Invalid Student ID.")
+        return
+    file_path = input("Enter full path to assignment file: ").strip().replace('|', '')
+    if not os.path.isfile(file_path):
+        print("File does not exist.")
+        return
+    # Extension
+    ext = os.path.splitext(file_path)[1].lower()
+    if ext not in ['.pdf', '.docx']:
+        print("Invalid file format. Only .pdf and .docx allowed.")
+        return
+    # Size
+    size = os.path.getsize(file_path)
+    if size > 5 * 1024 * 1024:
+        print("File too large. Maximum 5MB allowed.")
+        return
+    # MD5
+    with open(file_path, 'rb') as f:
+        file_md5 = hashlib.md5(f.read()).hexdigest()
+    filename = os.path.basename(file_path)
+
