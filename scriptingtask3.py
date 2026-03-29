@@ -104,3 +104,21 @@ def submit_assignment():
         f.write(f"{ts}|{student_id}|{filename}|{file_md5}|{size}\n")
     print("Assignment submitted successfully.")
     print("")
+
+def check_file_submitted():
+    print("~~~~~ CHECK SUBMITTED FILE ~~~~~")
+    filename = input("Enter filename to check (e.g. report.pdf): ").strip().replace('|', '')
+    found = []
+    for line in read_log(SUB_LOG):
+        parts = line.strip().split('|')
+        if len(parts) >= 3 and parts[2] == filename:
+            ts = int(parts[0])
+            sid = parts[1]
+            found.append(f"Submitted by {sid} on {format_time(ts)}")
+    if found:
+        print(f"Yes, the file '{filename}' has been submitted:")
+        for entry in found:
+            print(f"  - {entry}")
+    else:
+        print(f"No submissions found for filename '{filename}'.")
+    print("")
