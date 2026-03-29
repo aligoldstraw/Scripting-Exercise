@@ -74,3 +74,13 @@ case $choice in
             log_action "Viewed current CPU and memory usage"
             echo -e "\nAction logged to $LOG_FILE"
             ;;
+
+	2)  # List of top 10 memory consuming processes
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "TOP 10 MEMORY CONSUMING PROCESSES"
+            echo "PID      USER       %CPU       %MEM     COMMAND"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            ps -eo pid,user,%cpu,%mem,comm --sort=-%mem | head -n 11
+            log_action "User viewed top 10 memory consuming processes in University"
+            echo -e "\nAction logged to $LOG_FILE"
+            ;;
