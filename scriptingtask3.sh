@@ -146,3 +146,41 @@ local found=()
     echo "No submissions found for '$filename'."
   fi
   echo ""
+}
+
+# List all submitted assignments
+list_submitted() {
+  echo "~~~~~ ALL SUBMITTED ASSIGNMENTS ~~~~~"
+  if [ ! -s "$SUB_LOG" ]; then
+    echo "No submitted assignments yet."
+    echo ""
+    return
+  fi
+  
+  printf "%-15s | %-25s | %-10s | %-20s\n" "Student ID" "Filename" "Size (MB)" "Submitted At"
+  echo "-------------------------------------------------------------------------------"
+  
+  local line
+  while IFS='|' read -r ts sid fname hash sz; do
+    local size_mb=$(awk "BEGIN {print sprintf(\"%.2f\", $sz / 1048576)}")
+    local dt=$(format_time "$ts")
+    printf "%-15s | %-25s | %-10s | %-20s\n" "$sid" "$fname" "$size_mb" "$dt"
+  done < "$SUB_LOG"
+  echo ""
+}
+
+# Simulating login attempt
+simulate_login() {
+  echo "=== SIMULATE LOGIN ATTEMPT ==="
+  read -p "Enter Student ID: " student_id
+  student_id="${student_id//|/}"
+  [ -z "$student_id" ] && { echo "Invalid Student ID."; return; }
+  
+  if is_account_locked "$student_id"; then
+    echo "Account is locked due to multiple failed login attempts."
+    ts=$(get_unix_time)
+    echo "$ts|$student_id|FAILED|account locked" >> "$LOGIN_LOG"
+    echo ""
+    return
+  fi
+  
