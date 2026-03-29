@@ -122,3 +122,39 @@ def check_file_submitted():
     else:
         print(f"No submissions found for filename '{filename}'.")
     print("")
+
+def list_submitted():
+    print("~~~~~ ALL SUBMITTED ASSIGNMENTS ~~~~~")
+    logs = read_log(SUB_LOG)
+    if not logs:
+        print("No submitted assignments yet.")
+        print("")
+        return
+    print(f"{'Student ID':<15} | {'Filename':<25} | {'Size (MB)':<10} | {'Submitted At':<20}")
+    print("-" * 75)
+    for line in logs:
+        parts = line.strip().split('|')
+        if len(parts) < 5:
+            continue
+        sid = parts[1]
+        fname = parts[2]
+        size_mb = round(int(parts[4]) / (1024 * 1024), 2)
+        dt = format_time(int(parts[0]))
+        print(f"{sid:<15} | {fname:<25} | {size_mb:<10} | {dt:<20}")
+    print("")
+
+def simulate_login():
+    print("~~~~~ SIMULATE LOGIN ATTEMPT ~~~~~")
+    student_id = input("Enter Student ID: ").strip().replace('|', '')
+    if not student_id:
+        print("Invalid Student ID.")
+        return
+    if is_account_locked(student_id):
+        print("Account is locked due to multiple failed login attempts.")
+        ts = get_unix_time()
+        with open(LOGIN_LOG, 'a', encoding='utf-8') as f:
+            f.write(f"{ts}|{student_id}|FAILED|account locked\n")
+        print("")
+        return
+
+
