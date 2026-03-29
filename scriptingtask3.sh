@@ -128,3 +128,21 @@ check_file_submitted() {
   echo "~~~~~ CHECK SUBMITTED FILE ~~~~~"
   read -p "Enter filename to check (e.g. report.pdf): " filename
   filename="${filename//|/}"
+
+local found=()
+  local line
+  while IFS='|' read -r ts sid fname hash sz; do
+    [ "$fname" = "$filename" ] || continue
+    local dt=$(format_time "$ts")
+    found+=("Submitted by $sid on $dt")
+  done < <(read_log "$SUB_LOG")
+  
+  if [ ${#found[@]} -gt 0 ]; then
+    echo "'$filename' has been submitted:"
+    for entry in "${found[@]}"; do
+      echo "  - $entry"
+    done
+  else
+    echo "No submissions found for '$filename'."
+  fi
+  echo ""
