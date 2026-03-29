@@ -38,3 +38,23 @@ is_critical_process() {
             ;;
     esac
 }
+
+# Main menu
+while true; do
+    clear
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "    Hello, Welcome to this Kali Linux Intelligent System Monitor Tool"
+    echo "            University Data Centre Administration Simulator"
+    echo "                              Main Menu:                             "
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "1. Display current CPU and memory usage"
+    echo "2. List of top 10 memory consuming processes"
+    echo "3. Terminate a process (with confirmation)"
+    echo "4. Inspect disk usage of a directory"
+    echo "5. Detect and archive large log files (>50MB)"
+    echo "6. View system monitor log"
+    echo "0. Bye (Exit with confirmation)"
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    read -p "What task would you like to choose? " choice
+
+
