@@ -200,3 +200,15 @@ case $choice in
                 fi
             fi
             ;;
+
+	6)  # View system monitor log
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "SYSTEM MONITOR LOG ($LOG_FILE)"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            if [ -s "$LOG_FILE" ]; then
+                cat "$LOG_FILE"
+            else
+                echo "Log file is empty."
+            fi
+            log_action "Viewed system monitor log"
+            ;;
