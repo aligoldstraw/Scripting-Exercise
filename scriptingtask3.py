@@ -88,3 +88,19 @@ def submit_assignment():
         file_md5 = hashlib.md5(f.read()).hexdigest()
     filename = os.path.basename(file_path)
 
+    # Duplicate check
+    is_duplicate = False
+    for line in read_log(SUB_LOG):
+        parts = line.strip().split('|')
+        if len(parts) >= 4 and parts[2] == filename and parts[3] == file_md5:
+            is_duplicate = True
+            break
+    if is_duplicate:
+        print("Duplicate submission detected (identical filename and content).")
+        return
+    # Log
+    ts = get_unix_time()
+    with open(SUB_LOG, 'a', encoding='utf-8') as f:
+        f.write(f"{ts}|{student_id}|{filename}|{file_md5}|{size}\n")
+    print("Assignment submitted successfully.")
+    print("")
