@@ -1,22 +1,27 @@
+z
 #!/bin/bash
 
+# =====================================================
+# Kali Linux System Administration Tool
+# Meets Learning Outcome 2: Process monitoring, disk management, log control
 # Menu-driven interface for university data centre simulation
+# =====================================================
 
 # Configuration
 LOG_FILE="$HOME/system_monitor_log.txt"
-ARCHIVE_DIR="$HOME/LogArchive"
-LOG_SEARCH_DIR="/var/log"          # Normal location for system logs on Linux servers
+ARCHIVE_DIR="$HOME/ArchiveLogs"
+LOG_SEARCH_DIR="/var/log"          # Standard location for system logs on Linux servers
 
 # Create necessary directories and log file
 mkdir -p "$ARCHIVE_DIR"
 touch "$LOG_FILE"
 
-# Function that logs all administrative actions with timestamp for evidence
+# Function to log all administrative actions with timestamp
 log_action() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
 }
 
-# Function to check whether a process is critical and cannot be terminated
+# Function to check if a process is critical (cannot be terminated)
 is_critical_process() {
     local pid=$1
     if [ "$pid" -le 10 ]; then
@@ -28,7 +33,7 @@ is_critical_process() {
         return 1
     fi
     
-    # List of critical system processes (preventing termination)
+    # List of critical system processes (prevent termination)
     case "$proc_name" in
         systemd|init|kthreadd|ksoftirqd*|kworker*|migration*|rcu*|dbus*|sshd|agetty|cron|rsyslogd|journald|login|bash|sh)
             return 0
@@ -39,32 +44,31 @@ is_critical_process() {
     esac
 }
 
-# Main menu
+# Main menu loop
 while true; do
     clear
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    echo "    Hello, Welcome to this Kali Linux Intelligent System Monitor Tool"
-    echo "            University Data Centre Administration Simulator"
-    echo "                              Main Menu:                             "
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "===================================================="
+    echo "    Kali Linux Intelligent System Monitor Tool"
+    echo "    University Data Centre Administration Simulator"
+    echo "===================================================="
     echo "1. Display current CPU and memory usage"
-    echo "2. List of top 10 memory consuming processes"
+    echo "2. List top 10 memory consuming processes"
     echo "3. Terminate a process (with confirmation)"
     echo "4. Inspect disk usage of a directory"
     echo "5. Detect and archive large log files (>50MB)"
     echo "6. View system monitor log"
     echo "0. Bye (Exit with confirmation)"
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    read -p "What task would you like to choose? " choice
+    echo "===================================================="
+    read -p "Enter your choice: " choice
 
-case $choice in
-        1)  # Displays current CPU and memory usage
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    case $choice in
+        1)  # Display current CPU and memory usage
+            echo "===================================================="
             echo "CURRENT CPU AND MEMORY USAGE"
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "===================================================="
             
-            # CPU Usage
-            echo "CPU Usage = "
+            # CPU Usage (100 - idle %)
+            echo "CPU Usage:"
             top -bn1 | awk '/^%Cpu/ {printf "   Total used: %.1f%%\n", 100-$8}'
             
             # Memory Usage
@@ -74,24 +78,24 @@ case $choice in
             log_action "Viewed current CPU and memory usage"
             echo -e "\nAction logged to $LOG_FILE"
             ;;
-
-	2)  # List of top 10 memory consuming processes
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            
+        2)  # List top 10 memory consuming processes
+            echo "===================================================="
             echo "TOP 10 MEMORY CONSUMING PROCESSES"
-            echo "PID      USER       %CPU       %MEM     COMMAND"
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "PID      USER       %CPU   %MEM   COMMAND"
+            echo "===================================================="
             ps -eo pid,user,%cpu,%mem,comm --sort=-%mem | head -n 11
-            log_action "User viewed top 10 memory consuming processes in University"
+            log_action "Viewed top 10 memory consuming processes"
             echo -e "\nAction logged to $LOG_FILE"
             ;;
-
-	3)  # Terminates a selected process
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            echo "TERMINATE PROCESS"
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
             
-            # Shows top processes again for easy selection
-            echo "Current top memory processes = "
+        3)  # Terminate a selected process
+            echo "===================================================="
+            echo "TERMINATE PROCESS"
+            echo "===================================================="
+            
+            # Show top processes again for easy selection
+            echo "Current top memory processes:"
             ps -eo pid,user,%cpu,%mem,comm --sort=-%mem | head -n 11
             
             read -p "Enter PID to terminate: " pid
@@ -109,7 +113,7 @@ case $choice in
             fi
             
             if is_critical_process "$pid"; then
-                echo "ERROR: Unable to terminate critical system process (PID $pid)!"
+                echo "ERROR: Cannot terminate critical system process (PID $pid)!"
                 log_action "ATTEMPTED to terminate critical process PID $pid (blocked)"
                 sleep 2
                 continue
@@ -117,7 +121,7 @@ case $choice in
             
             proc_name=$(ps -p "$pid" -o comm=)
             echo "You are about to terminate: PID=$pid  Name=$proc_name"
-            read -p "Are you sure you want to terminate? (Y/N): " confirm
+            read -p "Are you sure? (Y/N): " confirm
             
             if [[ "$confirm" == "Y" || "$confirm" == "y" ]]; then
                 if kill "$pid" 2>/dev/null; then
@@ -132,11 +136,11 @@ case $choice in
                 log_action "CANCELLED termination of PID $pid"
             fi
             ;;
-
-	4)  # Inspects disk usage of a specified directory
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            
+        4)  # Inspect disk usage of a specified directory
+            echo "===================================================="
             echo "DISK INSPECTION"
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "===================================================="
             read -p "Enter directory path to inspect (e.g. /var or /home): " dir
             
             if [ -d "$dir" ]; then
@@ -152,23 +156,23 @@ case $choice in
             fi
             ;;
             
-        5)  # Detecting log files larger than 50MB and archiving them
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        5)  # Detect log files larger than 50MB and archive them
+            echo "===================================================="
             echo "LOG FILE ARCHIVING"
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "===================================================="
             echo "Scanning $LOG_SEARCH_DIR for log files > 50MB..."
             
-            # Finds large log files
+            # Find large log files
             large_logs=$(find "$LOG_SEARCH_DIR" -type f \( -name "*.log" -o -name "*.log.*" \) -size +50M 2>/dev/null)
             
             if [ -z "$large_logs" ]; then
-                echo "No log files larger than 50MB found in system."
+                echo "No log files larger than 50MB found."
                 log_action "Log archive scan completed - no large files found"
             else
-                echo "Search has found these large files = "
+                echo "Found the following large log files:"
                 echo "$large_logs" | nl
                 
-                # Archives each file
+                # Archive each file
                 count=0
                 while IFS= read -r log_file; do
                     if [ -f "$log_file" ]; then
@@ -176,7 +180,7 @@ case $choice in
                         filename=$(basename "$log_file")
                         archive_name="${filename}_${timestamp}.gz"
                         
-                        # Compress and move to LogArchive and copy to preserve original for safety
+                        # Compress and move to ArchiveLogs (copy to preserve original for safety)
                         gzip -c "$log_file" > "$ARCHIVE_DIR/$archive_name" 2>/dev/null
                         
                         if [ $? -eq 0 ]; then
@@ -189,22 +193,22 @@ case $choice in
                 echo -e "\nArchived $count large log file(s) to $ARCHIVE_DIR"
                 log_action "Archived $count large log file(s) (>50MB)"
                 
-                # Check LogArchive size
+                # Check ArchiveLogs size
                 archive_size_kb=$(du -sk "$ARCHIVE_DIR" 2>/dev/null | cut -f1)
-                if [ "$archive_size_kb" -gt 2621440 ]; then  # 2.5GB = 2,621,440 KB
-                    echo -e "\nWARNING: LogArchive directory now exceeds 1GB!"
+                if [ "$archive_size_kb" -gt 1048576 ]; then  # 1GB = 1,048,576 KB
+                    echo -e "\nWARNING: ArchiveLogs directory now exceeds 1GB!"
                     echo "Current size: $(du -sh "$ARCHIVE_DIR")"
-                    log_action "WARNING: LogsArchive exceeded 1GB"
+                    log_action "WARNING: ArchiveLogs exceeded 1GB"
                 else
-                    echo "LogArchive current size: $(du -sh "$ARCHIVE_DIR")"
+                    echo "ArchiveLogs current size: $(du -sh "$ARCHIVE_DIR")"
                 fi
             fi
             ;;
-
-	6)  # View system monitor log
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            
+        6)  # View system monitor log
+            echo "===================================================="
             echo "SYSTEM MONITOR LOG ($LOG_FILE)"
-            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "===================================================="
             if [ -s "$LOG_FILE" ]; then
                 cat "$LOG_FILE"
             else
@@ -212,26 +216,27 @@ case $choice in
             fi
             log_action "Viewed system monitor log"
             ;;
-
-	0)  # Bye exit with confirmation
-            echo -e "\nAre you sure you would like to exit? (Y/N)"
+            
+        0)  # Bye exit with confirmation
+            echo -e "\nAre you sure you want to exit? (Y/N)"
             read -p "> " confirm_exit
             if [[ "$confirm_exit" == "Y" || "$confirm_exit" == "y" ]]; then
                 log_action "System Monitor tool exited (Bye)"
-                echo -e "\nGoodbye! All actions have been logged in system."
+                echo -e "\nGoodbye! All actions have been logged."
                 echo "Log file: $LOG_FILE"
                 echo "Archive directory: $ARCHIVE_DIR"
                 exit 0
             else
-                echo "Exit cancelled. Returning to main menu..."
+                echo "Exit cancelled. Returning to menu..."
             fi
             ;;
             
         *)  # Invalid choice
-            echo "Selection not available! Please choose options 0-6."
+            echo "Invalid option! Please choose 0-6."
             ;;
     esac
     
-    echo -e "\nPress Enter to return back to the main menu..."
+    echo -e "\nPress Enter to return to the main menu..."
     read -r
 done
+
