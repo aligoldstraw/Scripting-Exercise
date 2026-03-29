@@ -216,3 +216,38 @@ read -s -p "Enter password: " password
   
   echo "$msg"
   echo ""
+
+# Main menu
+main_menu() {
+  while true; do
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "     SECURE EXAMINATION BOARD SUBMISSION SYSTEM         "
+    echo "                     Bash version                       "
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo "1. Submit an assignment"
+    echo "2. Check if a file has already been submitted"
+    echo "3. List all submitted assignments"
+    echo "4. Simulate login attempt"
+    echo "5. Exit system"
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    read -p "Please choose your task (1-5): " choice
+    
+    case "$choice" in
+      1) submit_assignment ;;
+      2) check_file_submitted ;;
+      3) list_submitted ;;
+      4) simulate_login ;;
+      5)
+        read -p "Confirm exit? (Y/N): " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+          echo "Exiting Menu. Logs are remembered."
+          exit 0
+        fi
+        ;;
+      *) echo "Invalid option. Please choose 1-5." ;;
+    esac
+  done
+}
+
+echo "Starting Secure Submission System (Bash)..."
+main_menu
