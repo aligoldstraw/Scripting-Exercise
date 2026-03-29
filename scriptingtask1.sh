@@ -84,3 +84,51 @@ case $choice in
             log_action "User viewed top 10 memory consuming processes in University"
             echo -e "\nAction logged to $LOG_FILE"
             ;;
+
+	3)  # Terminates a selected process
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "TERMINATE PROCESS"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            
+            # Shows top processes again for easy selection
+            echo "Current top memory processes = "
+            ps -eo pid,user,%cpu,%mem,comm --sort=-%mem | head -n 11
+            
+            read -p "Enter PID to terminate: " pid
+            
+            if ! [[ "$pid" =~ ^[0-9]+$ ]]; then
+                echo "Error: PID must be a number!"
+                sleep 2
+                continue
+            fi
+            
+            if ! ps -p "$pid" > /dev/null 2>&1; then
+                echo "Error: Process with PID $pid does not exist!"
+                sleep 2
+                continue
+            fi
+            
+            if is_critical_process "$pid"; then
+                echo "ERROR: Unable to terminate critical system process (PID $pid)!"
+                log_action "ATTEMPTED to terminate critical process PID $pid (blocked)"
+                sleep 2
+                continue
+            fi
+            
+            proc_name=$(ps -p "$pid" -o comm=)
+            echo "You are about to terminate: PID=$pid  Name=$proc_name"
+            read -p "Are you sure you want to terminate? (Y/N): " confirm
+            
+            if [[ "$confirm" == "Y" || "$confirm" == "y" ]]; then
+                if kill "$pid" 2>/dev/null; then
+                    echo "Process PID $pid terminated successfully."
+                    log_action "TERMINATED process PID $pid (Name: $proc_name)"
+                else
+                    echo "Failed to terminate process (permission denied or already gone)."
+                    log_action "FAILED to terminate process PID $pid"
+                fi
+            else
+                echo "Termination cancelled."
+                log_action "CANCELLED termination of PID $pid"
+            fi
+            ;;
