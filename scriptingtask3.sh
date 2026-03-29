@@ -184,3 +184,35 @@ simulate_login() {
     return
   fi
   
+read -s -p "Enter password: " password
+  echo ""
+  
+  ts=$(get_unix_time)
+  last_ts=$(get_last_attempt_time "$student_id")
+  repeated=false
+  if [ -n "$last_ts" ] && [ $((ts - last_ts)) -lt 60 ]; then
+    repeated=true
+  fi
+  
+  if [ "$password" = "$CORRECT_PASS" ]; then
+    status="SUCCESS"
+    msg="Login successful."
+    note=""
+  else
+    status="FAILED"
+    msg="Login failed. Incorrect password."
+    note="wrong password"
+  fi
+  
+  if $repeated; then
+    note="SUSPICIOUS - repeated login attempt within 60 seconds"
+    echo "Suspicious activity detected: repeated login attempt within 60 seconds."
+  fi
+  
+  # Log each attempt
+  log_entry="$ts|$student_id|$status"
+  [ -n "$note" ] && log_entry="$log_entry|$note"
+  echo "$log_entry" >> "$LOGIN_LOG"
+  
+  echo "$msg"
+  echo ""
