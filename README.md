@@ -17,3 +17,9 @@ How to run these scripts
 - Make each script executable by using chmod +x scriptingtask1.sh e.g.
 - Run bash script using ./scriptingtask1.sh command
 - Run python script using python3 scriptingtask3.py command
+
+Please ignore the random commits, the only files that apply to the assignment are 
+- scriptingtask1.sh
+- scriptingtask2.sh
+- scriptingtask3.sh
+- scriptingtask3.py
