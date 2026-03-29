@@ -132,3 +132,71 @@ case $choice in
                 log_action "CANCELLED termination of PID $pid"
             fi
             ;;
+
+	4)  # Inspects disk usage of a specified directory
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "DISK INSPECTION"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            read -p "Enter directory path to inspect (e.g. /var or /home): " dir
+            
+            if [ -d "$dir" ]; then
+                echo -e "\nDisk usage summary for $dir:"
+                echo "----------------------------------------"
+                du -sh "$dir" 2>/dev/null || echo "Permission denied on some files"
+                echo -e "\nFilesystem usage:"
+                df -h "$dir" 2>/dev/null || echo "Permission denied"
+                
+                log_action "Inspected disk usage of directory: $dir"
+            else
+                echo "Error: Directory '$dir' does not exist!"
+            fi
+            ;;
+            
+        5)  # Detecting log files larger than 50MB and archiving them
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "LOG FILE ARCHIVING"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "Scanning $LOG_SEARCH_DIR for log files > 50MB..."
+            
+            # Finds large log files
+            large_logs=$(find "$LOG_SEARCH_DIR" -type f \( -name "*.log" -o -name "*.log.*" \) -size +50M 2>/dev/null)
+            
+            if [ -z "$large_logs" ]; then
+                echo "No log files larger than 50MB found in system."
+                log_action "Log archive scan completed - no large files found"
+            else
+                echo "Search has found these large files = "
+                echo "$large_logs" | nl
+                
+                # Archives each file
+                count=0
+                while IFS= read -r log_file; do
+                    if [ -f "$log_file" ]; then
+                        timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
+                        filename=$(basename "$log_file")
+                        archive_name="${filename}_${timestamp}.gz"
+                        
+                        # Compress and move to LogArchive and copy to preserve original for safety
+                        gzip -c "$log_file" > "$ARCHIVE_DIR/$archive_name" 2>/dev/null
+                        
+                        if [ $? -eq 0 ]; then
+                            echo "✓ Archived: $log_file → $archive_name"
+                            ((count++))
+                        fi
+                    fi
+                done <<< "$large_logs"
+                
+                echo -e "\nArchived $count large log file(s) to $ARCHIVE_DIR"
+                log_action "Archived $count large log file(s) (>50MB)"
+                
+                # Check LogArchive size
+                archive_size_kb=$(du -sk "$ARCHIVE_DIR" 2>/dev/null | cut -f1)
+                if [ "$archive_size_kb" -gt 2621440 ]; then  # 2.5GB = 2,621,440 KB
+                    echo -e "\nWARNING: LogArchive directory now exceeds 1GB!"
+                    echo "Current size: $(du -sh "$ARCHIVE_DIR")"
+                    log_action "WARNING: LogsArchive exceeded 1GB"
+                else
+                    echo "LogArchive current size: $(du -sh "$ARCHIVE_DIR")"
+                fi
+            fi
+            ;;
