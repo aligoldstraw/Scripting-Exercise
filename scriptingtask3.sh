@@ -29,3 +29,41 @@ read_log() {
   fi
   cat "$file"
 }
+
+# Check if account is locked due to 3+ consecutive failed attempts
+is_account_locked() {
+  local student_id="$1"
+  local attempts=()
+  local line
+  while IFS='|' read -r ts sid status note; do
+    [ "$sid" = "$student_id" ] || continue
+    attempts+=("$ts|$status")
+  done < <(read_log "$LOGIN_LOG")
+  
+  [ ${#attempts[@]} -eq 0 ] && return 1  # not locked
+  
+  # Check consecutive fails from the end
+  local consecutive=0
+  for ((i=${#attempts[@]}-1; i>=0; i--)); do
+    local entry="${attempts[i]}"
+    local status="${entry#*|}"
+    if [ "$status" = "SUCCESS" ]; then
+      break
+    fi
+    ((consecutive++))
+    [ $consecutive -ge 3 ] && return 0  # locked
+  done
+  return 1  # not locked
+}
+
+# Get last attempt timestamp for student activity
+get_last_attempt_time() {
+  local student_id="$1"
+  local last_ts=0
+  local line
+  while IFS='|' read -r ts sid status note; do
+    [ "$sid" = "$student_id" ] || continue
+    [ "$ts" -gt "$last_ts" ] && last_ts="$ts"
+  done < <(read_log "$LOGIN_LOG")
+  [ "$last_ts" -eq 0 ] && echo "" || echo "$last_ts"
+}
