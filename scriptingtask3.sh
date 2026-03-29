@@ -67,3 +67,35 @@ get_last_attempt_time() {
   done < <(read_log "$LOGIN_LOG")
   [ "$last_ts" -eq 0 ] && echo "" || echo "$last_ts"
 }
+# Submit assignment
+submit_assignment() {
+  echo "~~~~~ SUBMIT ASSIGNMENT ~~~~~"
+  read -p "Enter Student ID: " student_id
+  student_id="${student_id//|/}"
+  [ -z "$student_id" ] && { echo "Invalid Student ID."; return; }
+  
+  read -p "Enter full path to assignment file: " file_path
+  file_path="${file_path//|/}"
+  
+  [ ! -f "$file_path" ] && { echo "File does not exist."; return; }
+  
+  # Extension check
+  ext="${file_path##*.}"
+  ext="${ext,,}"
+  if [[ "$ext" != "pdf" && "$ext" != "docx" ]]; then
+    echo "Invalid file format. Only .pdf and .docx allowed."
+    return
+  fi
+  
+  # Size check (5MB = 5242880 bytes)
+  size=$(stat -c %s "$file_path" 2>/dev/null || stat -f %z "$file_path" 2>/dev/null)
+  if [ "$size" -gt 5242880 ]; then
+    echo "File too large. Maximum 5MB allowed."
+    return
+  fi
+  
+  # Compute MD5
+  md5=$(md5sum "$file_path" 2>/dev/null | cut -d' ' -f1)
+  [ -z "$md5" ] && { echo "Could not compute file hash."; return; }
+  
+  filename=$(basename "$file_path")
