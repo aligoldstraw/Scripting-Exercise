@@ -99,3 +99,32 @@ submit_assignment() {
   [ -z "$md5" ] && { echo "Could not compute file hash."; return; }
   
   filename=$(basename "$file_path")
+
+ # Duplicate check (identical filename AND content)
+  local duplicate=false
+  local line
+  while IFS='|' read -r ts sid fname hash sz; do
+    if [ "$fname" = "$filename" ] && [ "$hash" = "$md5" ]; then
+      duplicate=true
+      break
+    fi
+  done < <(read_log "$SUB_LOG")
+  
+  if $duplicate; then
+    echo "Duplicate submission detected (identical filename and content)."
+    return
+  fi
+  
+  # Log submission for assignment
+  ts=$(get_unix_time)
+  echo "$ts|$student_id|$filename|$md5|$size" >> "$SUB_LOG"
+  
+  echo "Assignment submitted successfully."
+  echo ""
+}
+
+# Check if file has already been submitted
+check_file_submitted() {
+  echo "~~~~~ CHECK SUBMITTED FILE ~~~~~"
+  read -p "Enter filename to check (e.g. report.pdf): " filename
+  filename="${filename//|/}"
