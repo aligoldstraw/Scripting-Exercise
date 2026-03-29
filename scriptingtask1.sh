@@ -57,4 +57,20 @@ while true; do
     echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     read -p "What task would you like to choose? " choice
 
-
+case $choice in
+        1)  # Displays current CPU and memory usage
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            echo "CURRENT CPU AND MEMORY USAGE"
+            echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            
+            # CPU Usage
+            echo "CPU Usage = "
+            top -bn1 | awk '/^%Cpu/ {printf "   Total used: %.1f%%\n", 100-$8}'
+            
+            # Memory Usage
+            echo -e "\nMemory Usage:"
+            free -h | grep -E 'Mem:|Swap:'
+            
+            log_action "Viewed current CPU and memory usage"
+            echo -e "\nAction logged to $LOG_FILE"
+            ;;
