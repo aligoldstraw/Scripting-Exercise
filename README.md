@@ -8,7 +8,7 @@ scriptingtask2 - University High Performance Computing Job Scheduler - Bash
 
 scriptingtask3 Secure Examination Submission and Access Control System - Python
 
-- Features: Administrative controls and logging system
+- Features: Administrative controls and Assignment Submission system
 
 How to run these scripts
 - Open terminal
